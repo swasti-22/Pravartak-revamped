@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 from supabase import create_client, Client
 import google.generativeai as genai
+from mangum import Mangum
 
 # Load environment variables
 load_dotenv()
@@ -247,3 +248,6 @@ def generate_roadmap(payload: SearchPayload):
         print(f"Gemini API invocation error: {e}")
         # Secondary fallback
         return MOCK_PROCESSES["driving-licence"]
+
+# AWS Lambda Handler mapping
+handler = Mangum(app)
