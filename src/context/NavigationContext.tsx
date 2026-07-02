@@ -33,6 +33,8 @@ interface NavigationContextType {
   highContrast: boolean;
   fontSize: 'normal' | 'large' | 'extra-large';
   user: User | null;
+  pageLoading: boolean;
+  setPageLoading: (val: boolean) => void;
   
   // Navigation actions
   navigateTo: (page: PageName) => void;
@@ -62,6 +64,7 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [highContrast, setHighContrast] = useState(false);
   const [fontSize, setFontSize] = useState<'normal' | 'large' | 'extra-large'>('normal');
   const [user, setUser] = useState<User | null>(null);
+  const [pageLoading, setPageLoading] = useState(true);
 
   const fetchSavedProcesses = async (userId: string) => {
     try {
@@ -79,6 +82,7 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   useEffect(() => {
     // Get initial session
+    setPageLoading(true);
     supabase.auth.getSession().then(({ data: { session } }) => {
       const u = session?.user ?? null;
       setUser(u);
@@ -86,6 +90,9 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         fetchSavedProcesses(u.id);
         setCurrentPage('dashboard');
       }
+      setPageLoading(false);
+    }).catch(() => {
+      setPageLoading(false);
     });
 
     // Listen for auth changes
@@ -105,20 +112,28 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   }, []);
 
   const navigateTo = (page: PageName) => {
-    setHistory((prev) => [...prev, currentPage]);
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setPageLoading(true);
+    setTimeout(() => {
+      setHistory((prev) => [...prev, currentPage]);
+      setCurrentPage(page);
+      setPageLoading(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 800);
   };
 
   const goBack = () => {
-    if (history.length > 0) {
-      const prev = history[history.length - 1];
-      setHistory((prevStack) => prevStack.slice(0, -1));
-      setCurrentPage(prev);
-    } else {
-      setCurrentPage('landing');
-    }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setPageLoading(true);
+    setTimeout(() => {
+      if (history.length > 0) {
+        const prev = history[history.length - 1];
+        setHistory((prevStack) => prevStack.slice(0, -1));
+        setCurrentPage(prev);
+      } else {
+        setCurrentPage('landing');
+      }
+      setPageLoading(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 600);
   };
 
   const setLanguage = (lang: Language) => {
@@ -183,6 +198,8 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         highContrast,
         fontSize,
         user,
+        pageLoading,
+        setPageLoading,
         navigateTo,
         goBack,
         setLanguage,

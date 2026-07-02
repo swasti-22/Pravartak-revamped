@@ -13,9 +13,19 @@ import { Results } from './pages/Results';
 import { Profile } from './pages/Profile';
 
 import { motion, AnimatePresence } from 'framer-motion';
+import { ChaiLoader } from './components/ChaiLoader';
 
 const MainAppContent: React.FC = () => {
-  const { currentPage } = useNavigation();
+  const { currentPage, pageLoading, language } = useNavigation();
+
+  // Localized loading feedback
+  const getLoadingLabel = () => {
+    switch (language) {
+      case 'hi': return 'संप्रभु गेटवे से जुड़ रहे हैं...';
+      case 'gu': return 'સાર્વભૌમ ગેટવે સાથે જોડાઈ રહ્યું છે...';
+      default: return 'Connecting to Sovereign Gateways...';
+    }
+  };
 
   // Route resolver helper
   const renderPage = () => {
@@ -45,18 +55,31 @@ const MainAppContent: React.FC = () => {
       <Header />
 
       {/* Main Content Layout with Framer Motion Page Transition */}
-      <main className="flex-1 w-full max-w-7xl mx-auto py-4">
+      <main className="flex-1 w-full max-w-7xl mx-auto py-4 flex flex-col justify-center">
         <AnimatePresence mode="wait">
-          <motion.div
-            key={currentPage}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full h-full"
-          >
-            {renderPage()}
-          </motion.div>
+          {pageLoading ? (
+            <motion.div
+              key="loading-screen"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="flex-1 flex items-center justify-center"
+            >
+              <ChaiLoader label={getLoadingLabel()} />
+            </motion.div>
+          ) : (
+            <motion.div
+              key={currentPage}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+              className="w-full h-full"
+            >
+              {renderPage()}
+            </motion.div>
+          )}
         </AnimatePresence>
       </main>
 

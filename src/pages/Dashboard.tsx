@@ -9,6 +9,7 @@ import {
   Calendar, 
   CheckCircle2
 } from 'lucide-react';
+import { ChaiLoader } from '../components/ChaiLoader';
 
 export const Dashboard: React.FC = () => {
   const { 
@@ -119,6 +120,20 @@ export const Dashboard: React.FC = () => {
       text: "Driving License slot booking charges updated. RTO Gujarat has revised the physical test slot fee to ₹300."
     }
   ];
+
+  if (isSearching) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center min-h-[60vh] bg-brand-ivory text-brand-slate font-sans">
+        <ChaiLoader label={
+          language === 'hi' 
+            ? "प्रवर्तक आधिकारिक राजपत्रों की जांच कर रहा है..." 
+            : language === 'gu' 
+              ? "પ્રવર્તક સત્તાવાર ગેઝેટ્સની તપાસ કરી રહ્યું છે..." 
+              : "Pravartak is scanning official gazettes..."
+        } />
+      </div>
+    );
+  }
 
   return (
     <div className="bg-brand-ivory text-brand-slate font-sans min-h-screen py-8 px-6 md:px-12 max-w-6xl mx-auto space-y-8">
